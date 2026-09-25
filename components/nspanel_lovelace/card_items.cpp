@@ -339,5 +339,17 @@ uint16_t EntitiesCardEntityItem::get_render_buffer_reserve_() const {
          this->value_.length() + this->value_postfix_.length() + 2;
 }
 
+/*
+ * =============== ScreensaverEntityItem ===============
+ */
+
+std::string &ScreensaverEntityItem::render_(std::string &buffer) {
+  // skip: type,internalName
+  buffer.append(2, SEPARATOR);
+  PageItem_Icon::render_(buffer).append(1, SEPARATOR);
+  PageItem_DisplayName::render_(buffer).append(1, SEPARATOR);
+  return PageItem_Value::render_(buffer);
+}
+
 } // namespace nspanel_lovelace
 } // namespace esphome

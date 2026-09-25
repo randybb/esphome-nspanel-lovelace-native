@@ -68,5 +68,18 @@ protected:
   uint16_t get_render_buffer_reserve_() const override;
 };
 
+/*
+ * =============== ScreensaverEntityItem ===============
+ */
+
+class ScreensaverEntityItem : public EntitiesCardEntityItem {
+public:
+  using EntitiesCardEntityItem::EntitiesCardEntityItem;
+
+protected:
+  // output: ~~icon~iconColor~displayName~value
+  std::string &render_(std::string &buffer) override;
+};
+
 } // namespace nspanel_lovelace
 } // namespace esphome
