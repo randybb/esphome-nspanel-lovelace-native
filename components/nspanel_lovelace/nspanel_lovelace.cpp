@@ -155,6 +155,9 @@ void NSPanelLovelace::setup() {
       this->subscribe_homeassistant_state_attr(
         &NSPanelLovelace::on_entity_attribute_update_,
         entity_id, to_string(ha_attr_type::color_temp));
+      this->subscribe_homeassistant_state_attr(
+        &NSPanelLovelace::on_entity_attribute_update_,
+        entity_id, to_string(ha_attr_type::rgb_color));
       // need to subscribe to brightness to know if brightness is supported
       this->subscribe_homeassistant_state_attr(
           &NSPanelLovelace::on_entity_attribute_update_, 
