@@ -55,6 +55,7 @@ nspanel_lovelace:
     weather:
       entity_id: weather.forecast_home
       forecast_method: template_sensor # service
+      icon_color: 65535 # white (RGB565)
     entities:
       - entity_id: sensor.outside_temperature
         icon: home-thermometer-outline
