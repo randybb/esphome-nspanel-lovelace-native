@@ -9,6 +9,7 @@ from typing import Union
 import os, json
 
 from esphome.components import uart, time, esp32
+from esphome.components.color import hex_color
 from esphome.const import (
     __version__ as ESPHOME_VERSION,
     CONF_ID,
@@ -319,11 +320,23 @@ SCHEMA_LOCALE = cv.Schema({
     cv.Optional(CONF_LANGUAGE, default='en'): cv.string_strict,
 })
 
+def valid_color(value):
+    """RGB565 int, [r, g, b] list or hex string ("#RRGGBB" / "RRGGBB"), returned as RGB565."""
+    if isinstance(value, list):
+        if len(value) != 3:
+            raise cv.Invalid("RGB color must have 3 values, e.g. [255, 255, 255]")
+        r, g, b = (cv.uint8_t(v) for v in value)
+    elif isinstance(value, str):
+        r, g, b = hex_color(value.lstrip("#"))
+    else:
+        return cv.int_range(0, 65535)(value)
+    return ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
+
 SCHEMA_ICON = cv.Any(
     valid_icon_value, # icon name
     cv.Schema({
         cv.Optional(CONF_ICON_VALUE): valid_icon_value,
-        cv.Optional(CONF_ICON_COLOR): cv.int_range(0, 65535),
+        cv.Optional(CONF_ICON_COLOR): valid_color,
     })
 )
 
@@ -342,7 +355,7 @@ SCHEMA_SCREENSAVER = cv.Schema({
     cv.Optional(CONF_SCREENSAVER_WEATHER): cv.Schema({
         cv.Required(CONF_ENTITY_ID): valid_entity_id(),
         cv.Optional(CONF_SCREENSAVER_FORECAST_METHOD, default="template_sensor"): cv.one_of("template_sensor", "service"),
-        cv.Optional(CONF_SCREENSAVER_WEATHER_ICON_COLOR): cv.int_range(0, 65535),
+        cv.Optional(CONF_SCREENSAVER_WEATHER_ICON_COLOR): valid_color,
     }),
     cv.Optional(CONF_SCREENSAVER_STATUS_ICON_LEFT): SCHEMA_STATUS_ICON,
     cv.Optional(CONF_SCREENSAVER_STATUS_ICON_RIGHT): SCHEMA_STATUS_ICON,
