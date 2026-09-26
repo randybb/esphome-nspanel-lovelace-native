@@ -240,6 +240,8 @@ void StatefulPageItem::on_entity_attribute_change(ha_attr_type attr, const std::
           get_icon(SENSOR_ICON_MAP, value);
       }
     }
+  } else if (attr == ha_attr_type::rgb_color || attr == ha_attr_type::brightness) {
+    if (!this->is_type(entity_type::light)) return;
   } else if (attr == ha_attr_type::media_content_type) {
     if (this->icon_value_overridden_) return;
     this->icon_value_ = get_icon(MEDIA_TYPE_ICON_MAP,
@@ -306,13 +308,30 @@ uint16_t StatefulPageItem::get_render_buffer_reserve_() const {
       9;
 }
 
+// light icon colour follows the light's rgb_color (default yellow) dimmed by
+// brightness, same as the AppDaemon backend (min brightness keeps it visible)
+static uint16_t light_icon_color(const Entity *entity) {
+  int rgb[3] = {253, 216, 53};
+  sscanf(entity->get_attribute(ha_attr_type::rgb_color).c_str(),
+      "%*[[(]%d ,%d ,%d", &rgb[0], &rgb[1], &rgb[2]);
+  // brightness is stored as 0-100
+  auto &brightness_str = entity->get_attribute(ha_attr_type::brightness);
+  double scale = brightness_str.empty() ? 1.0 :
+      scale_value(std::stoi(brightness_str), {0, 100}, {100, 255}) / 255;
+  return rgb_dec565(
+      static_cast<uint8_t>(rgb[0] * scale),
+      static_cast<uint8_t>(rgb[1] * scale),
+      static_cast<uint8_t>(rgb[2] * scale));
+}
+
 void StatefulPageItem::state_on_off_fn(StatefulPageItem *me) {
   if (me->icon_color_overridden_) {
     return;
   }
 
   if (me->is_state(entity_state::on)) {
-    me->icon_color_ = 64909u; // yellow
+    me->icon_color_ = me->is_type(entity_type::light) ?
+        light_icon_color(me->get_entity()) : 64909u; // yellow
   } else if (me->is_state(entity_state::off)) {
     me->icon_color_ = 17299u; // blue
   } else {

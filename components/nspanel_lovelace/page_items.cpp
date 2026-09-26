@@ -133,7 +133,8 @@ void WeatherItem::accept(PageItemVisitor& visitor) { visitor.visit(*this); }
 void WeatherItem::set_icon_by_weather_condition(const std::string &condition) {
   Icon icon{};
   if (!try_get_value(WEATHER_ICON_MAP, icon, condition)) return;
-  this->icon_color_ = icon.color;
+  if (!this->icon_color_overridden_)
+    this->icon_color_ = icon.color;
   this->icon_value_ = icon.value;
   this->set_render_invalid();
 }
@@ -194,8 +195,9 @@ std::string &AlarmIconItem::render_(std::string &buffer) {
  * =============== DeleteItem ===============
  */
 
-DeleteItem::DeleteItem(page_type page_type) :
-    PageItem(entity_type::delete_) {
+DeleteItem::DeleteItem(page_type type) :
+    // screensaver slots are positional, so an empty slot is rendered blank
+    PageItem(type == page_type::screensaver ? "" : entity_type::delete_) {
   // Currently all page_types that accept delete entities
   // have the same separator quantity
   this->uuid_.append(5, SEPARATOR);
