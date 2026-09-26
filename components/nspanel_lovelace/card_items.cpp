@@ -7,6 +7,7 @@
 #include "translations.h"
 #include "types.h"
 #include <type_traits>
+#include "esphome/core/helpers.h"
 
 namespace esphome {
 namespace nspanel_lovelace {
@@ -106,6 +107,15 @@ void EntitiesCardEntityItem::on_entity_attribute_change(
 
 void EntitiesCardEntityItem::state_generic_fn(StatefulPageItem *me) {
   auto me_ = static_cast<EntitiesCardEntityItem*>(me);
+  if (me_->precision_ >= 0) {
+    const auto &state = me_->get_state();
+    char *end = nullptr;
+    float value = strtof(state.c_str(), &end);
+    if (end != state.c_str() && *end == '\0') {
+      me_->value_ = esphome::str_snprintf("%.*f", 16, me_->precision_, value);
+      return;
+    }
+  }
   me_->value_ = get_translation(me_->get_state());
 }
 

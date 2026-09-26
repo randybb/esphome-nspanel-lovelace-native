@@ -79,6 +79,7 @@ nspanel_lovelace:
     #   - entity_id: sensor.outside_humidity
     #     name: Humidity
     #     icon: water-percent
+    #     precision: 1  # number of decimals for numeric states
     #   - entity_id: delete
     #   - entity_id: binary_sensor.front_door
   cards:

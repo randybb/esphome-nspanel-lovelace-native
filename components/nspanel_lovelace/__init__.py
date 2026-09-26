@@ -146,6 +146,7 @@ CONF_CARD_HIDDEN = "hidden"
 CONF_CARD_TITLE = "title"
 CONF_CARD_ENTITIES = "entities"
 CONF_CARD_ENTITIES_NAME = "name"
+CONF_CARD_ENTITIES_PRECISION = "precision"
 
 CARD_ENTITIES="cardEntities"
 CARD_GRID="cardGrid"
@@ -353,7 +354,9 @@ SCHEMA_SCREENSAVER = cv.Schema({
     cv.Optional(CONF_SCREENSAVER_STATUS_ICON_LEFT): SCHEMA_STATUS_ICON,
     cv.Optional(CONF_SCREENSAVER_STATUS_ICON_RIGHT): SCHEMA_STATUS_ICON,
     cv.Optional(CONF_CARD_TYPE, default="screensaver"): cv.one_of(*SCREENSAVER_TYPE_MAX_ITEMS),
-    cv.Optional(CONF_CARD_ENTITIES): cv.ensure_list(SCHEMA_CARD_ENTITY),
+    cv.Optional(CONF_CARD_ENTITIES): cv.ensure_list(SCHEMA_CARD_ENTITY.extend({
+        cv.Optional(CONF_CARD_ENTITIES_PRECISION): cv.int_range(0, 6),
+    })),
 })
 
 SCHEMA_CARD_BASE = cv.Schema({
@@ -617,6 +620,8 @@ def gen_card_entities(entities_config, card_class: cg.MockObjClass, card_variabl
             f"{make_shared.template(entity_type).__call__(get_new_uuid(), entity_id, display_name)}"))
 
         generate_icon_config(entity_config.get(CONF_ICON, None), entity_class)
+        if CONF_CARD_ENTITIES_PRECISION in entity_config:
+            cg.add(entity_class.set_precision(entity_config[CONF_CARD_ENTITIES_PRECISION]))
 
         cg.add(card_variable.add_item(entity_class))
 
