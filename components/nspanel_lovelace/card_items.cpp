@@ -8,6 +8,7 @@
 #include "types.h"
 #include <type_traits>
 #include <cstdlib>
+#include "esphome/core/alloc_helpers.h"
 #include "esphome/core/helpers.h"
 
 namespace esphome {
